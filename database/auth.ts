@@ -204,3 +204,24 @@ export async function getCurrentUser(): Promise<User | null> {
 export async function logoutUser(): Promise<void> {
   await SecureStore.deleteItemAsync(SESSION_KEY);
 }
+export async function updateProfilePicture(
+  userId: number,
+  pictureUri: string
+): Promise<User> {
+  await db.runAsync(
+    'UPDATE users SET profile_picture = ? WHERE id = ?',
+    [pictureUri, userId]
+  );
+
+  const updatedUser = await db.getFirstAsync<User>(
+    `SELECT id, username, email, profile_picture
+     FROM users WHERE id = ?`,
+    [userId]
+  );
+
+  if (!updatedUser) {
+    throw new Error('User not found.');
+  }
+
+  return updatedUser;
+}

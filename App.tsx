@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import SettingsScreen from './screens/SettingsScreen';
 import {
   ActivityIndicator,
   Alert,
@@ -25,6 +26,7 @@ const BLUE = '#172B4D';
 const CREAM = '#F7F5EF';
 
 export default function App() {
+  const [activeTab, setActiveTab] = useState<'home' | 'settings'>('home');
   const [user, setUser] = useState<User | null>(null);
   const [ready, setReady] = useState(false);
   const [mode, setMode] = useState<'login' | 'signup'>('login');
@@ -114,43 +116,80 @@ export default function App() {
     );
   }
 
-  if (user) {
-    return (
-      <SafeAreaView style={styles.container}>
-        <View style={styles.home}>
-          <Text style={styles.logo}>FoodBuddy</Text>
-          <Text style={styles.heading}>Hi, {user.username}! 👋</Text>
-          <Text style={styles.subtitle}>
-            Welcome to your FoodBuddy account.
-          </Text>
+  
+if (user) {
+  return (
+    <SafeAreaView style={styles.container}>
+      <View style={{ flex: 1 }}>
+        {activeTab === 'settings' ? (
+          <SettingsScreen
+            user={user}
+            onUserUpdated={setUser}
+            onLogout={handleLogout}
+          />
+        ) : (
+          <ScrollView contentContainerStyle={styles.home}>
+            <Text style={styles.logo}>FoodBuddy</Text>
 
-          <View style={styles.card}>
-            <Text style={styles.cardTitle}>🍽️ Meal Planner</Text>
-            <Text>Plan your meals for the week.</Text>
-          </View>
+            <Text style={styles.heading}>
+              Hi, {user.username}! 👋
+            </Text>
 
-          <View style={styles.card}>
-            <Text style={styles.cardTitle}>🛒 Grocery List</Text>
-            <Text>Keep track of everything you need.</Text>
-          </View>
+            <Text style={styles.subtitle}>
+              What are we cooking today?
+            </Text>
 
-          <View style={styles.card}>
-            <Text style={styles.cardTitle}>📖 Recipes</Text>
-            <Text>Save your favorite meals.</Text>
-          </View>
+            <View style={styles.card}>
+              <Text style={styles.cardTitle}>🍽️ Meal Planner</Text>
+              <Text>Plan your meals for the week.</Text>
+            </View>
 
-          <Text style={styles.accountText}>{user.email}</Text>
+            <View style={styles.card}>
+              <Text style={styles.cardTitle}>🛒 Grocery List</Text>
+              <Text>Keep track of everything you need.</Text>
+            </View>
 
-          <TouchableOpacity
-            style={styles.secondaryButton}
-            onPress={handleLogout}
+            <View style={styles.card}>
+              <Text style={styles.cardTitle}>📖 Recipes</Text>
+              <Text>Save your favorite meals.</Text>
+            </View>
+          </ScrollView>
+        )}
+      </View>
+
+      <View style={styles.tabBar}>
+        <TouchableOpacity
+          style={styles.tab}
+          onPress={() => setActiveTab('home')}
+        >
+          <Text
+            style={[
+              styles.tabText,
+              activeTab === 'home' && styles.activeTabText,
+            ]}
           >
-            <Text style={styles.secondaryButtonText}>Log Out</Text>
-          </TouchableOpacity>
-        </View>
-      </SafeAreaView>
-    );
-  }
+            🏠 Home
+          </Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.tab}
+          onPress={() => setActiveTab('settings')}
+        >
+          <Text
+            style={[
+              styles.tabText,
+              activeTab === 'settings' && styles.activeTabText,
+            ]}
+          >
+            ⚙️ Settings
+          </Text>
+        </TouchableOpacity>
+      </View>
+    </SafeAreaView>
+  );
+}
+
 
   return (
     <SafeAreaView style={styles.container}>
@@ -345,4 +384,24 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 16,
   },
+  tabBar: {
+  flexDirection: 'row',
+  backgroundColor: 'white',
+  borderTopWidth: 1,
+  borderTopColor: '#E5E5E5',
+  paddingVertical: 15,
+},
+tab: {
+  flex: 1,
+  alignItems: 'center',
+},
+tabText: {
+  fontSize: 16,
+  color: '#777',
+  fontWeight: '600',
+},
+activeTabText: {
+  color: '#183D32',
+  fontWeight: 'bold',
+},
 });
