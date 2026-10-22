@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import SettingsScreen from './screens/SettingsScreen';
+import { seedAllergyCatalog } from './database/allergyCatalog';
+import AllergyProfileScreen from './screens/AllergyProfileScreen';
 import {
   ActivityIndicator,
   Alert,
@@ -26,7 +28,9 @@ const BLUE = '#172B4D';
 const CREAM = '#F7F5EF';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState<'home' | 'settings'>('home');
+  const [activeTab, setActiveTab] = useState<
+  'home' | 'allergies' | 'settings'
+>('home');
   const [user, setUser] = useState<User | null>(null);
   const [ready, setReady] = useState(false);
   const [mode, setMode] = useState<'login' | 'signup'>('login');
@@ -41,6 +45,7 @@ export default function App() {
     async function start() {
       try {
         await initializeDatabase();
+        await seedAllergyCatalog();
         const savedUser = await getCurrentUser();
         setUser(savedUser);
       } catch (error) {
@@ -122,12 +127,14 @@ if (user) {
     <SafeAreaView style={styles.container}>
       <View style={{ flex: 1 }}>
         {activeTab === 'settings' ? (
-          <SettingsScreen
-            user={user}
-            onUserUpdated={setUser}
-            onLogout={handleLogout}
-          />
-        ) : (
+  <SettingsScreen
+    user={user}
+    onUserUpdated={setUser}
+    onLogout={handleLogout}
+  />
+) : activeTab === 'allergies' ? (
+  <AllergyProfileScreen userId={user.id} />
+) : (
           <ScrollView contentContainerStyle={styles.home}>
             <Text style={styles.logo}>FoodBuddy</Text>
 
@@ -171,7 +178,19 @@ if (user) {
             🏠 Home
           </Text>
         </TouchableOpacity>
-
+        <TouchableOpacity
+  style={styles.tab}
+  onPress={() => setActiveTab('allergies')}
+>
+  <Text
+    style={[
+      styles.tabText,
+      activeTab === 'allergies' && styles.activeTabText,
+    ]}
+  >
+    🛡️ Allergies
+  </Text>
+</TouchableOpacity>
         <TouchableOpacity
           style={styles.tab}
           onPress={() => setActiveTab('settings')}
